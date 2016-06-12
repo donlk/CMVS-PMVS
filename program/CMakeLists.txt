@@ -30,12 +30,26 @@ INCLUDE_DIRECTORIES(
 FIND_PACKAGE(Threads REQUIRED)
 SET(PMVS_LIBRARIES ${PMVS_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 
+SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+INCLUDE(FindEigen)
+
+# ==============================================================================
 # Eigen
-SET( EIGEN3_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/thirdParty/Eigen )
-SET( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${EIGEN3_INCLUDE_DIR}/cmake" )
-FIND_PACKAGE(Eigen3 3.0.0 REQUIRED)
-MESSAGE("Found Eigen ${EIGEN3_VERSION}")
-INCLUDE_DIRECTORIES( ${EIGEN3_INCLUDE_DIR} )
+# ==============================================================================
+# - internal by default,
+# - external if EIGEN_INCLUDE_DIR_HINTS is defined
+# ==============================================================================
+IF(NOT DEFINED EIGEN_INCLUDE_DIR_HINTS)
+  SET(EIGEN_INCLUDE_DIR_HINTS ${CMAKE_SOURCE_DIR}/thirdParty/Eigen)
+ENDIF()
+FIND_PACKAGE(Eigen QUIET)
+IF(EIGEN_FOUND)
+  INCLUDE_DIRECTORIES(${EIGEN_INCLUDE_DIR})
+  SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${EIGEN_INCLUDE_DIR}/cmake")
+ELSE()
+  message("Eigen not found")
+ENDIF(EIGEN_FOUND)
+
 
 # Boost
 SET(Boost_USE_STATIC_LIBS        ON)
